@@ -205,13 +205,14 @@ inline __host__ __device__ uint64_t nextLong(uint64_t* seed) {
 
 
 
-#define WORKER_COUNT (1ULL<<10)
+#define WORKER_COUNT (1ULL<<18)
 
 
 #define MAXCHAR 1000
 
 #undef int
 int main() {
+	setbuf(stdout, NULL);
 #define int uint64_t
 	FILE *fp;
     char str[MAXCHAR];
@@ -256,7 +257,6 @@ int main() {
 		clock_t startTime = clock();
 		
 		
-		printf("A1\n");
 		crack<<<WORKER_COUNT>>9,1<<9>>>(offset,inputSeedCount,inputSeeds,outputSeedCount,outputSeeds);
 	
 		bool doneFlag=false;
@@ -270,21 +270,16 @@ int main() {
 			}
 			else
 			{
-			
 				doneFlag=true;
 			}
 		}
-		printf("A2\n");
+		CHECK_GPU_ERR(cudaPeekAtLastError());
 		CHECK_GPU_ERR(cudaDeviceSynchronize());
-	
-	
 		for(uint64_t i=0;i<WORKER_COUNT;i++)
 		{
-			inputSeeds[i+offset]=buffer[i];
+			inputSeeds[i]=buffer[i];
 		}
 		
-		
-		printf("A3\n");
 		double timeElapsed = (double)(clock() - startTime);
 		timeElapsed /= CLOCKS_PER_SEC;
 		
@@ -296,12 +291,12 @@ int main() {
 			outputSeeds[i] = 0;
 		}
 		*outputSeedCount=0;
-		printf("A3\n");
 		if(doneFlag)
 		{
 			printf("DONE\n");
 			break;
 		}
+
 	}
 	
 	crack<<<WORKER_COUNT>>9,1<<9>>>(offset,count,inputSeeds,outputSeedCount,outputSeeds);
