@@ -39,8 +39,8 @@ inline __host__ __device__ uint64_t getPopulationSeed(uint64_t worldSeed, int x,
 
 
 
-#define CHUNK_X 1
-#define CHUNK_Z 1
+#define CHUNK_X 3
+#define CHUNK_Z -3
 
 
 
@@ -64,12 +64,12 @@ inline __device__ void addSeed(uint64_t seed,uint64_t* seeds,uint64_t* seedCount
 	seeds[Id]=seed;
 }
 
-__global__ void crack(uint64_t offset,uint64_t seedInputCount,uint64_t* seedInputArray,uint64_t* seedOutputCounter,uint64_t* seedOutputArray) {
+__global__ void crack(uint64_t seedInputCount,uint64_t* seedInputArray,uint64_t* seedOutputCounter,uint64_t* seedOutputArray) {
     uint64_t global_id = blockIdx.x * blockDim.x + threadIdx.x;
-	if((global_id+offset)>seedInputCount)
+	if((global_id)>seedInputCount)
 		return;
 	
-    uint64_t seed = seedInputArray[global_id+offset];
+    uint64_t seed = seedInputArray[global_id];
     
 	seed = seed ^ 25214903917ULL;//xor with const ASSUMPTION THAT original seeds arnt xored
 	
@@ -199,13 +199,13 @@ inline __host__ __device__ uint64_t nextLong(uint64_t* seed) {
 
 
 
-#define OUTPUT_SEED_ARRAY_SIZE (1ULL<<22)
+#define OUTPUT_SEED_ARRAY_SIZE (1ULL<<20)
 
 
 
 
 
-#define WORKER_COUNT (1ULL<<18)
+#define WORKER_COUNT (1ULL<<16)
 
 
 #define MAXCHAR 1000
@@ -250,14 +250,15 @@ int main() {
 		}
 	}
 	
+	
+	printf("Begining cracking\n");
 	int count=0;//Counter used for end bit
-	uint64_t offset=0;
-	for (offset = 0; ; offset += WORKER_COUNT)
+	while(true)
 	{
 		clock_t startTime = clock();
 		
 		
-		crack<<<WORKER_COUNT>>9,1<<9>>>(offset,inputSeedCount,inputSeeds,outputSeedCount,outputSeeds);
+		crack<<<WORKER_COUNT>>9,1<<9>>>(inputSeedCount,inputSeeds,outputSeedCount,outputSeeds);
 	
 		bool doneFlag=false;
 		count=0;
@@ -270,6 +271,7 @@ int main() {
 			}
 			else
 			{
+			
 				doneFlag=true;
 			}
 		}
@@ -299,7 +301,7 @@ int main() {
 
 	}
 	
-	crack<<<WORKER_COUNT>>9,1<<9>>>(offset,count,inputSeeds,outputSeedCount,outputSeeds);
+	crack<<<WORKER_COUNT>>9,1<<9>>>(count,inputSeeds,outputSeedCount,outputSeeds);
 	CHECK_GPU_ERR(cudaDeviceSynchronize());
 	for (int i = 0; i < *outputSeedCount; i++)
 	{
