@@ -215,8 +215,10 @@ int main() {
 	setbuf(stdout, NULL);
 #define int uint64_t
 	FILE *fp;
+	FILE *fp_out;
     char str[MAXCHAR];
 	fp = fopen("SEEDS.txt", "r");
+	fp_out = fopen("WorldSeeds.txt", "w");
 	if (fp == NULL){
         printf("Could not open file");
         return 1;
@@ -251,7 +253,7 @@ int main() {
 	}
 	
 	
-	printf("Begining cracking\n");
+	printf("Beginning converting\n");
 	int count=0;//Counter used for end bit
 	while(true)
 	{
@@ -285,11 +287,12 @@ int main() {
 		double timeElapsed = (double)(clock() - startTime);
 		timeElapsed /= CLOCKS_PER_SEC;
 		
-		printf("Seed count %llu, Time %.1fs %i\n",*outputSeedCount,timeElapsed,doneFlag);
+		printf("Seed count %llu, Time %.1fs\n",*outputSeedCount,timeElapsed);
 	
 		for (int i = 0; i < *outputSeedCount; i++)
 		{
-			//PRINT TO FILE HERE
+			fprintf(fp_out,"%llu\n",outputSeeds[i]);
+			fflush(fp_out);
 			outputSeeds[i] = 0;
 		}
 		*outputSeedCount=0;
@@ -306,11 +309,12 @@ int main() {
 	for (int i = 0; i < *outputSeedCount; i++)
 	{
 		
-		
-		//PRINT TO FILE HERE
+		fprintf(fp_out,"%llu\n",outputSeeds[i]);
+		fflush(fp_out);
 		outputSeeds[i] = 0;
 	}
     fclose(fp);
+    fclose(fp_out);
 }
 
 
