@@ -64,7 +64,8 @@ inline __host__ __device__ uint64_t getPopulationSeed(uint64_t worldSeed, int x,
 
 inline __device__ void addSeed(uint64_t seed, uint64_t* seeds, uint64_t* seedCounter)
 {
-    uint64_t id = atomicAdd(seedCounter, 1);
+    // unsigned long long* cast is required for CUDA 9 :thonkgpu:
+    uint64_t id = atomicAdd((unsigned long long*) seedCounter, 1ULL);
     seeds[id] = seed;
 }
 
@@ -184,8 +185,8 @@ uint64_t modInverse(uint64_t x) {
 
 #undef int
 int main() {
+#define int uint32_t
     setbuf(stdout, NULL);
-#define int uint64_t
     FILE *fp;
     FILE *fp_out;
     char str[MAXCHAR];
