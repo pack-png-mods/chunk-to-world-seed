@@ -256,9 +256,8 @@ int main() {
     
         for (int i = 0; i < *outputSeedCount; i++) {
             fprintf(fp_out, "%llu\n", outputSeeds[i]);
-            fflush(fp_out);
-            outputSeeds[i] = 0;
         }
+        fflush(fp_out);
         
         *outputSeedCount = 0;
         if (doneFlag) {
@@ -272,9 +271,8 @@ int main() {
     CHECK_GPU_ERR(cudaDeviceSynchronize());
     for (int i = 0; i < *outputSeedCount; i++) {
         fprintf(fp_out, "%llu\n", outputSeeds[i]);
-        fflush(fp_out);
-        outputSeeds[i] = 0;
     }
+    fflush(fp_out);
     fclose(fp);
     fclose(fp_out);
 }
