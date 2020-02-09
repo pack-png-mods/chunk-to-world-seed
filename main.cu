@@ -1,4 +1,21 @@
 //"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\bin\nvcc.exe"  -ccbin "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\bin\Hostx64\x64" -o main main.cu -O3
+
+// IDE indexing
+#ifdef __JETBRAINS_IDE__
+#define __host__
+#define __device__
+#define __shared__
+#define __constant__
+#define __global__
+#define __CUDACC__
+#include <__clang_cuda_builtin_vars.h>
+#include <__clang_cuda_cmath.h>
+#include <__clang_cuda_complex_builtins.h>
+#include <__clang_cuda_intrinsics.h>
+#include <__clang_cuda_math_forward_declares.h>
+#include <device_functions.h>
+#endif
+
 #include <iostream>
 #include <math.h>
 #include <cmath>
