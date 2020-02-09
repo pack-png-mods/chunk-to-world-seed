@@ -191,11 +191,21 @@ int main() {
     FILE *fp_out;
     char str[MAXCHAR];
     fp = fopen("SEEDS.txt", "r");
-    fp_out = fopen("WorldSeeds.txt", "w");
-    if (fp == NULL) {
-        printf("Could not open file");
+    uint64_t totalInputSeeds = 0;
+    if (!fp) {
+        printf("Could not open file\n");
         return 1;
     }
+    printf("Counting input size...\n");
+    while (fgets(str, MAXCHAR, fp))
+        totalInputSeeds++;
+    fclose(fp);
+    fp = fopen("SEEDS.txt", "r");
+    if (!fp) {
+        printf("Could not open file\n");
+        return 1;
+    }
+    fp_out = fopen("WorldSeeds.txt", "w");
     
     uint64_t* buffer = (uint64_t*)malloc(WORKER_COUNT * sizeof(uint64_t));
     
@@ -224,12 +234,14 @@ int main() {
     int32_t multTrailingZeroes = countTrailingZeroes(firstMultiplier); 
     uint64_t firstMultInv = modInverse(firstMultiplier >> multTrailingZeroes);
     
-    printf("Beginning converting\n");
+    printf("Beginning converting %lld seeds\n", totalInputSeeds);
     int count = 0; // Counter used for end bit
+    int64_t numSearched = 0;
+    int64_t totalSeeds = 0;
+    clock_t lastIteration = clock();
+    clock_t startTime = clock();
     while (true) {
-        clock_t startTime = clock();
-        
-        crack<<<WORKER_COUNT >> 9, 1 << 9>>>(inputSeedCount, inputSeeds, outputSeedCount, outputSeeds, 
+        crack<<<WORKER_COUNT >> 9, 1 << 9>>>(inputSeedCount, inputSeeds, outputSeedCount, outputSeeds,
             multTrailingZeroes, firstMultInv);
     
         bool doneFlag = false;
@@ -248,11 +260,29 @@ int main() {
         for(uint64_t i = 0; i < WORKER_COUNT; i++) {
             inputSeeds[i] = buffer[i];
         }
-        
-        double timeElapsed = (double)(clock() - startTime);
-        timeElapsed /= CLOCKS_PER_SEC;
-        
-        printf("Seed count %llu, Time %.3fs, Speed: %.3fm/s\n", *outputSeedCount, timeElapsed, WORKER_COUNT / timeElapsed / 1000000);
+
+        double iterationTime = (double)(clock() - lastIteration) / CLOCKS_PER_SEC;
+        double timeElapsed = (double)(clock() - startTime) / CLOCKS_PER_SEC;
+        lastIteration = clock();
+        numSearched += WORKER_COUNT;
+        double speed = WORKER_COUNT / iterationTime / 1000.0;
+        double progress = (double) numSearched / (double) totalInputSeeds * 100.0;
+        double estimatedTime = (double) (totalInputSeeds - numSearched) / (double) WORKER_COUNT * iterationTime;
+        char suffix = 's';
+        if (estimatedTime >= 3600) {
+            suffix = 'h';
+            estimatedTime /= 3600;
+        } else if (estimatedTime >= 60) {
+            suffix = 'm';
+            estimatedTime /= 60;
+        }
+        if (progress >= 100) {
+            estimatedTime = 0;
+            suffix = 's';
+        }
+        totalSeeds += *outputSeedCount;
+
+        printf("Searched: %lld seeds. Found %lld matches. Uptime: %.1fs. Speed: %.2fk seeds/s. Completion: %.3f%%. ETA: %.1f%c.\n", numSearched, totalSeeds, timeElapsed, speed, progress, estimatedTime, suffix);
     
         for (int i = 0; i < *outputSeedCount; i++) {
             fprintf(fp_out, "%llu\n", outputSeeds[i]);
