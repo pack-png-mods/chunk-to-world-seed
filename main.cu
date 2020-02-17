@@ -43,7 +43,9 @@ inline __host__ __device__ int countTrailingZeroes(uint64_t v);
 inline __host__ __device__ uint64_t nextLong(uint64_t* seed);
 inline __host__ __device__ uint64_t getPopulationSeed(uint64_t worldSeed, int x, int z);
 
+#ifndef CHUNK_X
 #define CHUNK_X 3
+#endif
 #define CHUNK_Z -3
 #define OUTPUT_SEED_ARRAY_SIZE (1ULL << 20)
 #define WORKER_COUNT (1ULL << 16)
