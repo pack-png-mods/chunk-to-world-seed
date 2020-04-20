@@ -63,7 +63,7 @@ constexpr int32_t BLOCK_DIM_X = 128;
 constexpr int32_t BLOCK_DIM_Y = 1;  //should be 1
 constexpr int32_t BLOCK_DIM_Z = 1;  //should be 1
 
-constexpr int32_t GRID_DIM_X = 4096;
+constexpr int32_t GRID_DIM_X = 4096 << 1;
 constexpr int32_t GRID_DIM_Y = 1;   //should be 1
 constexpr int32_t GRID_DIM_Z = 1;   //should be 1
 /*CUDA LAUNCH CONSTANTS*/
@@ -146,8 +146,8 @@ void clear_seed(uint64_t *bucket) {
 }
 
 __host__ __device__
-uint64_t make_mask(int32_t bits) { 
-    return (1ULL << bits) - 1; 
+uint64_t make_mask(int32_t bits) {
+    return (1ULL << bits) - 1;
 }
 
 __device__
