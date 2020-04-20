@@ -1,3 +1,8 @@
 .idea/
 cmake-build-debug
+*.exe
+*.exp
+*.lib
+*.txt
+
 
