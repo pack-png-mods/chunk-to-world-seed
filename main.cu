@@ -48,22 +48,22 @@ inline void gpuAssert(cudaError_t code, const char *file, int line) {
 }
 
 /*FILE PATHS*/
-constexpr const char *INPUT_FILE_PATH = "data/big_chunk_seeds.txt";
-constexpr const char *OUTPUT_FILE_PATH = "data/WorldSeeds.txt";
+#define INPUT_FILE_PATH "data/big_chunk_seeds.txt"
+#define OUTPUT_FILE_PATH "data/WorldSeeds.txt"
 /*FILE PATHS*/
 
 /*CHUNK CONSTANTS*/
-constexpr int32_t CHUNK_X = 3;
-constexpr int32_t CHUNK_Z = -3;
+#define CHUNK_X 3
+#define CHUNK_Z -3
 constexpr uint64_t INVALID_SEED = 0;
 /*CHUNK CONSTANTS*/
 
 /*CUDA LAUNCH CONSTANTS*/
-constexpr int32_t BLOCK_DIM_X = 128;
+constexpr int32_t BLOCK_DIM_X = 64;
 constexpr int32_t BLOCK_DIM_Y = 1;  //should be 1
 constexpr int32_t BLOCK_DIM_Z = 1;  //should be 1
 
-constexpr int32_t GRID_DIM_X = 4096 << 1;
+constexpr int32_t GRID_DIM_X = 4096 << 2;
 constexpr int32_t GRID_DIM_Y = 1;   //should be 1
 constexpr int32_t GRID_DIM_Z = 1;   //should be 1
 /*CUDA LAUNCH CONSTANTS*/
@@ -133,11 +133,10 @@ int64_t next_long(uint64_t *seed) {
 
 __device__
 void add_seed_cond(bool cond, uint64_t new_seed, uint64_t *bucket, uint32_t *index) {
-        if(cond){
-            bucket[*index] = new_seed;
-            *index += 1;
-        }
-
+    if(cond){
+        bucket[*index] = new_seed;
+        *index += 1;
+    }
 }
 
 __device__
