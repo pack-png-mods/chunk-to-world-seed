@@ -48,13 +48,24 @@ inline void gpuAssert(cudaError_t code, const char *file, int line) {
 }
 
 /*FILE PATHS*/
+#ifndef INPUT_FILE_PATH
 #define INPUT_FILE_PATH "data/big_chunk_seeds.txt"
+#endif
+#ifndef OUTPUT_FILE_PATH
 #define OUTPUT_FILE_PATH "data/WorldSeeds.txt"
+#endif
+
 /*FILE PATHS*/
 
 /*CHUNK CONSTANTS*/
+#ifndef CHUNK_X
 #define CHUNK_X 3
+#endif
+
+#ifndef CHUNK_Z
 #define CHUNK_Z -3
+#endif
+
 constexpr uint64_t INVALID_SEED = 0;
 /*CHUNK CONSTANTS*/
 
