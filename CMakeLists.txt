@@ -14,5 +14,5 @@ else()
     message(STATUS "No CUDA support")
 endif()
 
-add_executable(chunk_to_world_seed main.cu random.cpp generator.cpp)
+add_executable(chunk_to_world_seed main.cu)
 target_compile_features(chunk_to_world_seed PUBLIC cxx_std_14)
